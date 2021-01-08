@@ -4,13 +4,14 @@ const mongoose = require( 'mongoose' );
 const bodyParser = require( 'body-parser' );
 const cors = require("cors");
 const http = require("http");
-const dotenv = require("dotenv").config();
+const dotenv = require("dotenv");
 const auth= require( './routes/auth' );
 const User = require("./models/user")
 const Post = require("./models/post")
 const post = require( './routes/post' );
 const user = require( './routes/user' );
 const path = require("path");
+dotenv.config();
 mongoose.connect( process.env.mongoURI, {useNewUrlParser: true, useUnifiedTopology: true}, ( err)=>{if ( err ){
 console.log( "error", err )
 }
