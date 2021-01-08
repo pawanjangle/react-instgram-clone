@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
-const { jwtSecret, myInstagram} = require("../config/keys");
 const jwt = require("jsonwebtoken");
 const requireLogin = require("../middleware/requireLogin");
 const nodemailer = require("nodemailer");
@@ -10,7 +9,7 @@ const crypto = require("crypto");
 const sendgridTransport = require("nodemailer-sendgrid-transport");
 const transporter = nodemailer.createTransport(sendgridTransport({
   auth: {
-    api_key: myInstagram
+    api_key: process.env.myInstagram
   }
 }));
 router.get("/dashboard", requireLogin, (req, res) => {
@@ -70,7 +69,7 @@ router.post("/login", (req, res) => {
         if (doMatch) {
           const token = jwt.sign(
             { _id: savedUser._id, name: savedUser.name },
-            jwtSecret
+            process.env.jwtSecret
           );
           const { _id, name, email, followers, following } = savedUser;
           res.json({

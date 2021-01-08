@@ -68,7 +68,7 @@ router.put("/unfollow", requireLogin, (req, res)=>{
 });
 router.post("/setprofilepic", upload.single("pic"), requireLogin, (req, res)=>{
     if(req.file){
-        const url = API + "/public/" + req.file.filename 
+        const url = process.env.API + "/public/" + req.file.filename 
     User.findByIdAndUpdate(req.user._id, {
          profilePic: url
     }, {new: true}).then(result =>{

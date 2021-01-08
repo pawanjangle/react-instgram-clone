@@ -4,6 +4,7 @@ const mongoose = require( 'mongoose' );
 const bodyParser = require( 'body-parser' );
 const cors = require("cors");
 const http = require("http");
+const dotenv = require("dotenv").config();
 const keys = require( './config/keys' );
 const auth= require( './routes/auth' );
 const User = require("./models/user")
@@ -11,7 +12,7 @@ const Post = require("./models/post")
 const post = require( './routes/post' );
 const user = require( './routes/user' );
 const path = require("path");
-mongoose.connect( keys.mongoURI, {useNewUrlParser: true, useUnifiedTopology: true}, ( err)=>{if ( err ){
+mongoose.connect( process.env.mongoURI, {useNewUrlParser: true, useUnifiedTopology: true}, ( err)=>{if ( err ){
 console.log( "error", err )
 }
 else{
