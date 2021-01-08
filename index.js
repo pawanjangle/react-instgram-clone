@@ -12,7 +12,7 @@ const post = require( './routes/post' );
 const user = require( './routes/user' );
 const path = require("path");
 dotenv.config();
-mongoose.connect( "mongodb+srv://pawan_Jangle:adgjmp100@cluster0.oogls.mongodb.net/instagram?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true}, ( err)=>{if ( err ){
+mongoose.connect( process.env.mongoUrl, {useNewUrlParser: true, useUnifiedTopology: true}, ( err)=>{if ( err ){
 console.log( "error", err )
 }
 else{
