@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
   }) 
   const upload = multer({ storage: storage })
 router.post( "/createpost",  upload.single("pic"), requireLogin, ( req, res ) =>{
-    if(req.file){
+
         let url = process.env.API + "/public/" + req.file.filename
 const {title, body} = req.body;
 const newPost = new Post({
@@ -24,7 +24,7 @@ const newPost = new Post({
 newPost.save().then(data=>{
 return res.json({message: "post created",})
 }).catch(err=> console.log(err))
-}});
+});
 router.get( "/allposts", requireLogin, ( req, res )=>{
 Post.find(  )
 .populate("postedBy", "_id name")
