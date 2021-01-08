@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   const upload = multer({ storage: storage })
 router.post( "/createpost",  upload.single("pic"), requireLogin, ( req, res ) =>{
 
-        let url = process.env.API + "/public/" + req.file.filename
+        let url =  "http://react-instagramclone.herokuapp.com/public/" + req.file.filename
 const {title, body} = req.body;
 const newPost = new Post({
     title, body, photo: url, postedBy: req.user._id
