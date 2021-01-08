@@ -1,7 +1,6 @@
 const express = require( 'express' );
 const router = express.Router(  );
 const Post = require( '../models/post' );
-const { API } = require("../config/keys");
 const requireLogin = require( '../middleware/requireLogin' );
 const multer = require("multer");
 const shortId = require("shortid")
@@ -17,7 +16,7 @@ const storage = multer.diskStorage({
   const upload = multer({ storage: storage })
 router.post( "/createpost",  upload.single("pic"), requireLogin, ( req, res ) =>{
     if(req.file){
-        let url = API + "/public/" + req.file.filename
+        let url = process.env.API + "/public/" + req.file.filename
 const {title, body} = req.body;
 const newPost = new Post({
     title, body, photo: url, postedBy: req.user._id
