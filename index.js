@@ -5,7 +5,6 @@ const bodyParser = require( 'body-parser' );
 const cors = require("cors");
 const http = require("http");
 const dotenv = require("dotenv").config();
-const keys = require( './config/keys' );
 const auth= require( './routes/auth' );
 const User = require("./models/user")
 const Post = require("./models/post")
