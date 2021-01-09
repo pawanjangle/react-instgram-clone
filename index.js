@@ -23,7 +23,7 @@ app.use( express.json(  ) );
 app.use(cors());
 app.use( bodyParser.urlencoded( {extended: false} ) );
 app.use(express.static( path.join( __dirname, "build" ) ) )
-app.use("/public", express.static(path.join(__dirname, "public")))
+app.use("/public", express.static(path.join(__dirname, "uploads")))
 app.use( "/", auth);
 app.use( "/", post );
 app.use( "/", user);
