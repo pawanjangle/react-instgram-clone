@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
 import { useSelector, useDispatch } from "react-redux";
@@ -8,33 +9,18 @@ const FollowPosts = () => {
   const [favorite, setFavorite] = useState("");
   const dispatch = useDispatch();
   const history = useHistory();
-  useEffect(()=>{
-const auth = JSON.parse(localStorage.getItem("user"));
-if(auth){
-  dispatch({type: "SETUSER", payload: auth})
-}
-else{ 
-  if(!history.location.pathname.startsWith("/reset")){
-    history.push("/login")
-}
-  
-}
-  }, [])
-  useEffect(() => {
-  
-    fetch("/followeduserpost", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        console.log(result);
-        setData(result.posts);
-      });
-    
-}, [data]);
-      
+  const followedPosts = useSelector(state=>state.followedPosts)
+  // useEffect(() => {
+  //   const auth = JSON.parse(localStorage.getItem("user"));
+  //   if (auth) {
+  //     dispatch({ type: "SETUSER", payload: auth });
+  //   } else {
+  //     if (!history.location.pathname.startsWith("/reset")) {
+  //       history.push("/login");
+  //     }
+  //   }
+  // }, []);
+
   const likePost = (id) => {
     fetch("/like", {
       method: "put",
@@ -48,7 +34,6 @@ else{
     })
       .then((res) => res.json())
       .then((result) => {
-   
         const newData = data.map((item) => {
           if (item._id === result._id) {
             return result;
@@ -158,8 +143,8 @@ else{
   };
   return (
     <div className="container">
-      {data
-        ? data.map((item) => {
+      {followedPosts
+        ? followedPosts.map((item) => {
             return (
               <>
                 <div className="card home-card" key={item._id}>

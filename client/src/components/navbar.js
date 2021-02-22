@@ -5,7 +5,6 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const auth = useSelector(state=> state.user);
-
   const renderList = () => {
     if (auth) {
       return [
@@ -17,7 +16,7 @@ const Navbar = () => {
             <Link to="/create">create Post</Link>
           </li>
           <li>
-            <Link to="/allposts">All posts</Link>
+            <Link to="/">All posts</Link>
           </li>
           <li>
             <button
@@ -52,7 +51,7 @@ const Navbar = () => {
         
         <div className="nav-wrapper white">
           
-          <Link to={auth ? "/" : "/login"} className="brand-logo left">
+          <Link to={auth ? "/followposts" : "/login"} className="brand-logo left">
             Instagram
           </Link>
           <ul id="nav-mobile" className="right">

@@ -1,45 +1,43 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import M from "materialize-css";
 const Profile = () => {
   const [mypics, setPics] = useState([]);
-  const [profilePic, setProfilePic] = useState("");
   const [image, setImage] = useState("");
-  const [user, setUser] = useState("");
-  const auth = useSelector(state => state.user )
+  const user = useSelector((state) => state.user.user);
+  console.log(user);
   useEffect(() => {
-    fetch("/myposts", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setPics(result.myposts);
-      });
-  }, [profilePic]);
-  useEffect(() => {
-    fetch("/userdata", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    }).then((res) =>
-      res.json().then(result => {
-     setUser(result)
+    axios
+      .get("/myposts", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
       })
-    );
-  }, [profilePic]);
-  useEffect(()=>{
+      .then((res) => {
+        setPics(res.data.myposts);
+      });
+  }, []);
+  useEffect(() => {
+    if (image) {
       const form = new FormData();
       form.append("pic", image);
-      console.log(form)
-      axios.post("/setprofilepic", form, {headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      } }  ).then(data => {
-        setProfilePic(data.profilePic)
-    })
-  }
-  , [image])
+      axios
+        .post("/setprofilepic", form, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        })
+        .then((res) => {
+          if (res.data.message) {
+            M.toast({
+              html: res.data.message,
+              classes: "#ff1744 green accent-3",
+            });
+          }
+        });
+    }
+  });
 
   return (
     <div style={{ maxWidth: "550px", margin: "0px auto" }}>
@@ -54,10 +52,10 @@ const Profile = () => {
         <div>
           <img
             style={{ width: "160px", height: "160px", borderRadius: "80px" }}
-            src={ user.profilePic}
+            src={user ? user.profilePic : "loading"}
           />
           <form>
-            <div className="file-field input-field" >
+            <div className="file-field input-field">
               <div className="btn">
                 <span>set Profile Picture</span>
                 <input
@@ -72,8 +70,8 @@ const Profile = () => {
           </form>
         </div>
         <div>
-          <h4>{auth ? auth.name : "loading..."}</h4>
-          <h6>{auth ? auth.email : "loading..."}</h6>
+          <h4>{user ? user.name : "loading..."}</h4>
+          <h6>{user ? user.email : "loading..."}</h6>
           <div
             style={{
               display: "flex",
@@ -82,8 +80,8 @@ const Profile = () => {
             }}
           >
             <h6>{mypics.length} posts</h6>
-            <h6>{user.followers ? user.followers.length : 0} followers</h6>
-            <h6>{user.following ? user.following.length : 0} following</h6>
+            <h6>{user ? user.followers.length : 0} followers</h6>
+            <h6>{user ? user.following.length : 0} following</h6>
           </div>
         </div>
       </div>
@@ -95,7 +93,7 @@ const Profile = () => {
                 height: "200px",
                 justifyContent: "space-between",
                 width: "150px",
-                padding: "10px"
+                padding: "10px",
               }}
               src={item.photo}
               alt="photo"

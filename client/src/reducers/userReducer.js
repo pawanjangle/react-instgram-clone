@@ -1,18 +1,19 @@
-import { SETUSER } from "../types";
-const reducer = (state = [], action) => {
+const initialState = {
+  user: null,
+  authenticated: false,
+};
+const UserReducer = (state = initialState, action) => {
   switch (action.type) {
-   
-    case SETUSER:
-      return {user: action.payload,
-      authenticated: true}
+    case "SET_USER":
+      return { ...state, user: action.payload.user, authenticated: true };
     case "CLEAR":
       return {
         ...state,
         authenticated: false,
-        user: null
-      }
+        user: null,
+      };
     default:
-      return state
+      return state;
   }
 };
-export default reducer;
+export default UserReducer;

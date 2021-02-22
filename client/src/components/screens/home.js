@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from "react";
 import "../../App.css";
-import M from 'materialize-css';
+import M from "materialize-css";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import axios from "axios";
 const Home = () => {
   const user = useSelector((state) => state.user);
-  const [data, setData] = useState([]);
+  const posts = useSelector((state) => state.post.allPosts);
   const [favorite, setFavorite] = useState("");
+
   useEffect(() => {
-    fetch("/allposts", {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setData(result.posts);
+    axios
+      .get("/allposts", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      })
+      .then((res) => {
+        if (res.data.posts) {
+          dispatch({ type: "ALL_POSTS", payload: res.data });
+        }
       });
-  }, [data, favorite]);
+  }, []);
   const likePost = (id) => {
     fetch("/like", {
       method: "put",
@@ -32,7 +35,7 @@ const Home = () => {
     })
       .then((res) => res.json())
       .then((result) => {
-        console.log(result)
+        console.log(result);
         const newData = data.map((item) => {
           if (item._id === result._id) {
             return result;
@@ -92,19 +95,17 @@ const Home = () => {
       });
   };
   const deletePost = (postId) => {
-    fetch(`/deletepost/${postId}`, {
-      method: "delete",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.filter((item) => {
-          return item._id !== result.result._id;
-        });
-        setData(newData);
-        M.toast( { html: result.message, classes: "#ff1744 red accent-3" } )
+    axios
+      .delete(`/deletepost/${postId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      })
+      .then((res) => {
+        if (res.message) {
+          M.toast({ html: res.message, classes: "#ff1744 red accent-3" });
+        }
       });
   };
   const addToFavorite = (id) => {
@@ -121,7 +122,7 @@ const Home = () => {
       .then((res) => res.json())
       .then((result) => {
         setFavorite(true);
-        M.toast( { html: result.message, classes: "#ff1744 green accent-3" } );
+        M.toast({ html: result.message, classes: "#ff1744 green accent-3" });
       });
   };
   const removeFromFavorite = (id) => {
@@ -138,13 +139,13 @@ const Home = () => {
       .then((res) => res.json())
       .then((result) => {
         setFavorite(false);
-        M.toast( { html: result.message, classes: "#ff1744 red accent-3" } )
+        M.toast({ html: result.message, classes: "#ff1744 red accent-3" });
       });
   };
   return (
     <div className="container">
-      {data
-        ? data.map((item) => {
+      {posts
+        ? posts.map((item) => {
             return (
               <>
                 <div className="card home-card" key={item._id}>
@@ -172,41 +173,42 @@ const Home = () => {
                     <img style={{ height: "500px" }} src={item.photo} alt="" />
                   </div>
                   <div>
-                    <div style= {{display: "flex", paddingTop: "5px"}}>
-                    {item.likes.includes(user._id) ? (
-                      <i
-                        className="material-icons"
-                        onClick={() => {
-                          unlikePost(item._id);
-                        }}
-                      >
-                        thumb_down
-                      </i>
-                    ) : (
-                      <i
-                        className="small material-icons"
-                        onClick={() => likePost(item._id)}
-                      >
-                        thumb_up
-                      </i>
-                    )}
-                    <div style= {{paddingLeft: "10px"}}>
-                      {item.favorites.includes(user._id) ? (
-                      <i
-                        className="small material-icons"
-                        style={{ color: "red" }}
-                        onClick={() => removeFromFavorite(item._id)}
-                      >
-                        favorite
-                      </i>
-                    ) : (
-                      <i
-                        className="small material-icons"                   
-                        onClick={() => addToFavorite(item._id)}
-                      >
-                        favorite
-                      </i>
-                    )}</div>
+                    <div style={{ display: "flex", paddingTop: "5px" }}>
+                      {item.likes.includes(user._id) ? (
+                        <i
+                          className="material-icons"
+                          onClick={() => {
+                            unlikePost(item._id);
+                          }}
+                        >
+                          thumb_down
+                        </i>
+                      ) : (
+                        <i
+                          className="small material-icons"
+                          onClick={() => likePost(item._id)}
+                        >
+                          thumb_up
+                        </i>
+                      )}
+                      <div style={{ paddingLeft: "10px" }}>
+                        {item.favorites.includes(user._id) ? (
+                          <i
+                            className="small material-icons"
+                            style={{ color: "red" }}
+                            onClick={() => removeFromFavorite(item._id)}
+                          >
+                            favorite
+                          </i>
+                        ) : (
+                          <i
+                            className="small material-icons"
+                            onClick={() => addToFavorite(item._id)}
+                          >
+                            favorite
+                          </i>
+                        )}
+                      </div>
                     </div>
                     <h6>{item.likes.length} Likes</h6>
                     <h6>{item.title}</h6>
