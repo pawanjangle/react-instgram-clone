@@ -1,54 +1,48 @@
+import axios from "axios";
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-
 const Profile = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  const [follow, setFollow] = useState("");
-  const [unfollow, setunfollow] = useState("");
-  const [data, setData] = useState(null);
+  const dispatch = useDispatch();
+  const userProfile = useSelector(state=>state.user.userProfile)
+  const userPosts = useSelector(state=>state.user.userPosts)
+  const user = useSelector(state=>state.user.user)
   const { userid } = useParams();
   useEffect(() => {
-    fetch(`/user/${userid}`, {
+    axios.get(`/user/${userid}`, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("jwt"),
       },
     })
-      .then((res) => res.json())
-      .then((result) => {
-        setData(result);
-      });
-  }, [follow, unfollow]);
+      .then((res) => {
+        console.log(res)
+        if(res.data.userProfile){
+     dispatch({type:"GET_USER_PROFILE", payload: res.data})
+      }});
+  }, []);
   const followUser = () => {
-    fetch("/follow", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
+    axios.put("/follow", { followId: userid }, {   
+      headers: {      
         Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({ followId: userid }),
-    }).then((res) =>
-      res.json().then((data) => {
-        setFollow(data);
-      })
-    );
+      },    
+    }).then((res) => {
+      
+      if(res.data.updatedUser){
+      dispatch({type:"UPDATE_FOLLOW", payload: res.data})
+    }
+      })   
   };
   const unfollowUser = () => {
-    fetch("/unfollow", {
-      method: "put",
+    axios.put("/unfollow", { unfollowId: userid }, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({ unfollowId: userid }),
-    }).then((res) =>
-      res.json().then((data) => {
-        setunfollow(data);
+      },  
+    }).then((res) => {
+      dispatch({type:"UPDATE_UNFOLLOW", payload: res.data})
       })
-    );
   };
-  return data ? (
+  return (
+    userProfile?
     <div style={{ maxWidth: "550px", margin: "0px auto" }}>
       <div
         style={{
@@ -61,12 +55,12 @@ const Profile = () => {
         <div>
           <img
             style={{ width: "160px", height: "160px", borderRadius: "80px" }}
-            src={data.user.profilePic}
+            src={ userProfile.profilePic}
           />
         </div>
         <div>
-          <h4>{data.user.name}</h4>
-          <h4>{data.user.email}</h4>
+          <h4>{userProfile.name}</h4>
+          <h4>{userProfile.email}</h4>
           <div
             style={{
               display: "flex",
@@ -74,15 +68,15 @@ const Profile = () => {
               width: "108%",
             }}
           >
-            <h6>{data.posts.length} posts</h6>
+            <h6>{userPosts ? userPosts.length : 0} posts</h6>
             <h6>
-              {data.user.followers ? data.user.followers.length : 0} followers
+              {userProfile.followers ? userProfile.followers.length : 0} followers
             </h6>
             <h6>
-              {data.user.following ? data.user.following.length : 0} following
+              {userProfile.following ? userProfile.following.length : 0} following
             </h6>
           </div>
-          {data.user.followers.includes(user._id) ? (
+          {userProfile.followers.includes(user._id) ? (
             <button
               className="waves-effect waves-light btn 64b5f6 blue lighten-2 white-text"
               onClick={() => unfollowUser()}
@@ -100,7 +94,7 @@ const Profile = () => {
         </div>
       </div>
       <div className="gallery">
-        {data.posts.map((item) => {
+        {userPosts ? userPosts.map((item) => {
           return (
             <img
               style={{
@@ -112,11 +106,9 @@ const Profile = () => {
               alt="photo"
             />
           );
-        })}
+        }): "loading"}
       </div>
-    </div>
-  ) : (
-    "loading"
-  );
+    </div>: "loading"
+  ) 
 };
 export default Profile;

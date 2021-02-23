@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 const Navbar = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const auth = useSelector(state=> state.user);
+  const user = useSelector(state=> state.user);
   const renderList = () => {
-    if (auth) {
+    if (user.authenticated === true ) {
       return [
         <>
           <li>
@@ -51,7 +51,7 @@ const Navbar = () => {
         
         <div className="nav-wrapper white">
           
-          <Link to={auth ? "/followposts" : "/login"} className="brand-logo left">
+          <Link to={user.authenticated ? "/followposts" : "/login"} className="brand-logo left">
             Instagram
           </Link>
           <ul id="nav-mobile" className="right">

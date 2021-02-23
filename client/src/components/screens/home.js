@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "../../App.css";
 import M from "materialize-css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import axios from "axios";
 const Home = () => {
-  const user = useSelector((state) => state.user);
+  const user = useSelector((state) => state.user.user);
   const posts = useSelector((state) => state.post.allPosts);
-  const [favorite, setFavorite] = useState("");
-
+  const [favorite, setFavorite] = useState(false);
+  const [comment, setComment] = useState(false);
+  const [liked, setLiked] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     axios
       .get("/allposts", {
@@ -18,128 +20,116 @@ const Home = () => {
       })
       .then((res) => {
         if (res.data.posts) {
-          dispatch({ type: "ALL_POSTS", payload: res.data });
+          dispatch({
+            type: "ALL_POSTS",
+            payload: res.data,
+          });
         }
       });
-  }, []);
+  }, [liked, favorite, comment]);
   const likePost = (id) => {
-    fetch("/like", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        console.log(result);
-        const newData = data.map((item) => {
-          if (item._id === result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
-      })
-      .catch((err) => console.log(err));
+    axios
+      .post(
+        "/like",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        setLiked(!liked)
+      });
   };
   const unlikePost = (id) => {
-    fetch("/unlike", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((item) => {
-          if (id === result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
+    axios
+      .post(
+        "/unlike",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        setLiked(!liked)
       });
   };
   const makeComment = (text, id) => {
-    fetch("/comment", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-        text,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((item) => {
-          if (item._id == result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
+    axios
+      .put(
+        "/comment",
+        {
+          postId: id,
+          text,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        setComment(!comment);
       });
   };
   const deletePost = (postId) => {
     axios
       .delete(`/deletepost/${postId}`, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: "Bearer " + localStorage.getItem("jwt"),
         },
       })
       .then((res) => {
-        if (res.message) {
-          M.toast({ html: res.message, classes: "#ff1744 red accent-3" });
+        if (res.data.message) {
+          M.toast({ html: res.data.message, classes: "#ff1744 red accent-3" });
         }
       });
   };
   const addToFavorite = (id) => {
-    fetch("/addtofavorite", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setFavorite(true);
-        M.toast({ html: result.message, classes: "#ff1744 green accent-3" });
+    axios
+      .put(
+        "/addtofavorite",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.message)
+          M.toast({
+            html: res.data.message,
+            classes: "#ff1744 green accent-3",
+          });
+  setFavorite(!favorite)
       });
   };
   const removeFromFavorite = (id) => {
-    fetch("/removefromfavorite", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setFavorite(false);
-        M.toast({ html: result.message, classes: "#ff1744 red accent-3" });
+    axios
+      .put(
+        "/removefromfavorite",
+        { postId: id },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.message) {
+          setFavorite(!favorite)
+          M.toast({ html: res.data.message, classes: "#ff1744 red accent-3" });
+        }
       });
   };
   return (
@@ -149,7 +139,12 @@ const Home = () => {
             return (
               <>
                 <div className="card home-card" key={item._id}>
-                  <h5 style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+                  <h5
+                    style={{
+                      paddingTop: "10px",
+                      paddingBottom: "10px",
+                    }}
+                  >
                     <Link
                       to={
                         item.postedBy._id !== user._id
@@ -162,21 +157,41 @@ const Home = () => {
                     {item.postedBy._id == user._id && (
                       <i
                         class="material-icons"
-                        style={{ float: "right" }}
-                        onClick={() => deletePost(item._id)}
+                        style={{
+                          float: "right",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          deletePost(item._id);
+                        }}
                       >
                         delete
                       </i>
                     )}
                   </h5>
                   <div className="card-image">
-                    <img style={{ height: "500px" }} src={item.photo} alt="" />
+                    <img
+                      style={{
+                        height: "500px",
+                      }}
+                      src={item.photo}
+                      alt=""
+                    />
                   </div>
                   <div>
-                    <div style={{ display: "flex", paddingTop: "5px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        paddingTop: "5px",
+                      }}
+                    >
                       {item.likes.includes(user._id) ? (
                         <i
                           className="material-icons"
+                          style={{
+                            color: "blue",
+                            cursor: "pointer",
+                          }}
                           onClick={() => {
                             unlikePost(item._id);
                           }}
@@ -186,41 +201,61 @@ const Home = () => {
                       ) : (
                         <i
                           className="small material-icons"
+                          style={{ cursor: "pointer" }}
                           onClick={() => likePost(item._id)}
                         >
                           thumb_up
                         </i>
                       )}
-                      <div style={{ paddingLeft: "10px" }}>
+                      <div
+                        style={{
+                          paddingLeft: "10px",
+                        }}
+                      >
                         {item.favorites.includes(user._id) ? (
                           <i
                             className="small material-icons"
-                            style={{ color: "red" }}
-                            onClick={() => removeFromFavorite(item._id)}
+                            style={{
+                              color: "red",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              removeFromFavorite(item._id);
+                            }}
                           >
                             favorite
                           </i>
                         ) : (
                           <i
                             className="small material-icons"
-                            onClick={() => addToFavorite(item._id)}
+                            style={{
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              addToFavorite(item._id);
+                            }}
                           >
                             favorite
                           </i>
                         )}
                       </div>
                     </div>
-                    <h6>{item.likes.length} Likes</h6>
-                    <h6>{item.title}</h6>
-                    <p>{item.body}</p>
-                    {item.comments.map((record) => {
+                    <h6>
+                      {item.likes.length}
+                      Likes
+                    </h6>
+                    <h6> {item.title} </h6> <p> {item.body} </p>
+                    {item.comments.map((record, index) => {
                       return (
-                        <h6 key={record._id}>
-                          <span style={{ fontWeight: "500" }}>
+                        <h6 key={index}>
+                          <span
+                            style={{
+                              fontWeight: "500",
+                            }}
+                          >
                             {record.postedBy}
-                          </span>{" "}
-                          <span></span>
-                          {record.text}
+                          </span>
+                          <span> </span> {record.text}
                         </h6>
                       );
                     })}

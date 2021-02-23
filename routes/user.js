@@ -9,14 +9,14 @@ const { uploadS3 } = require("../middleware/uploadS3");
 router.get("/user/:id", requireLogin, (req, res) => {
   User.findOne({ _id: req.params.id })
     .select("-password")
-    .then((user) => {
+    .then((userProfile) => {
       Post.find({ postedBy: req.params.id })
         .populate("postedBy", "_id name")
         .exec((err, posts) => {
           if (err) {
             return res.json({ error: err });
           }
-          return res.status(200).json({ user, posts });
+          return res.status(200).json({ userProfile, posts });
         });
     })
     .catch((err) => {
@@ -44,11 +44,11 @@ router.put("/follow", requireLogin, (req, res) => {
         { new: true }
       )
         .select("-password")
-        .then((result) => {
-          return res.json(result);
+        .then((updatedUser) => {
+          return res.status(200).json({updatedUser});
         })
         .catch((err) => {
-          return res.status(422).json({ error: err });
+          return res.json({ error: err });
         });
     }
   );
@@ -74,11 +74,11 @@ router.put("/unfollow", requireLogin, (req, res) => {
         { new: true }
       )
         .select("-password")
-        .then((result) => {
-          return res.json(result);
+        .then((updatedUser) => {
+          return res.json({updatedUser});
         })
         .catch((err) => {
-          return res.status(422).json({ error: err });
+          return res.json({ error: err });
         });
     }
   );
@@ -95,10 +95,11 @@ router.post(
           profilePic: req.file.location,
         },
         { new: true }
-      ).then((data) => {
+      ).then((updatedUser) => {
+
         return res
           .status(200)
-          .json({ message: "Profile Pic ipdated successfully" });
+          .json({ message: "Profile Pic ipdated successfully", updatedUser });
       });
     }
   }

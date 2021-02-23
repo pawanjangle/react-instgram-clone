@@ -57,11 +57,11 @@ router.post("/signupuser", async (req, res) => {
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(422).json({ error: "Please add email or password" });
+    return res.json({ error: "Please add email or password" });
   }
   User.findOne({ email: email }).then((savedUser) => {
     if (!savedUser) {
-      return res.status(422).json({ error: "invalid email or password" });
+      return res.json({ error: "invalid email or password" });
     }
     bcrypt
       .compare(password, savedUser.password)
@@ -78,7 +78,7 @@ router.post("/login", (req, res) => {
             message: "Login Successful",
           });
         } else {
-          return res.status(422).json({ error: "invalid email or password" });
+          return res.json({ error: "invalid email or password" });
         }
       })
       .catch((err) => {

@@ -44,25 +44,27 @@ router.get("/myposts", requireLogin, (req, res) => {
       res.json({ error: error });
     });
 });
-router.put("/like", requireLogin, (req, res) => {
-  Post.findByIdAndUpdate(
-    req.body.postId,
-    {
-      $push: { likes: req.user._id },
-    },
-    {
-      new: true,
-    }
-  ).exec((err, result) => {
-    console.log(result);
-    if (err) {
-      return res.status(422).json({ err });
-    } else {
-      res.json(result);
-    }
-  });
+router.post("/like", requireLogin, async (req, res) => {
+  const post = await Post.findOne({ _id: req.body.postId });
+  if (!post.likes.includes(req.user._id)) {
+    Post.findByIdAndUpdate(
+      req.body.postId,
+      {
+        $push: { likes: req.user._id },
+      },
+      {
+        new: true,
+      }
+    ).exec((err, result) => {
+      if (err) {
+        return res.json({ err });
+      } else {
+        res.status(200).json(result);
+      }
+    });
+  }
 });
-router.put("/unlike", requireLogin, (req, res) => {
+router.post("/unlike", requireLogin, (req, res) => {
   Post.findByIdAndUpdate(
     req.body.postId,
     {
@@ -73,9 +75,9 @@ router.put("/unlike", requireLogin, (req, res) => {
     }
   ).exec((err, result) => {
     if (err) {
-      return res.status(422).json({ err });
+      return res.json({ err });
     } else {
-      res.json(result);
+      res.status(200).json(result);
     }
   });
 });
@@ -94,10 +96,9 @@ router.put("/comment", requireLogin, (req, res) => {
     }
   ).exec((err, result) => {
     if (err) {
-      return res.status(422).json({ err });
+      return res.json({ err });
     } else {
-      res.json(result);
-      console.log(result);
+      res.status(200).json(result);
     }
   });
 });
@@ -107,11 +108,11 @@ router.delete("/deletepost/:postId", requireLogin, (req, res) => {
     .populate("postedBy", "_id")
     .exec((err, post) => {
       if (err || !post) {
-        return res.status(422).json({ error: err });
+        return res.json({ error: err });
       }
       post
         .remove()
-        .then((result) => {
+        .then(() => {
           return res.status(200).json({ message: "Post Deleted successfully" });
         })
         .catch((err) => {
@@ -124,8 +125,8 @@ router.put("/addtofavorite", requireLogin, (req, res) => {
     $push: {
       favorites: req.user._id,
     },
-  }).then((result) => {
-    return res.json({ message: "Added to favorites" });
+  }).then(() => {
+    return res.status(200).json({ message: "Added to favorites" });
   });
 });
 router.put("/removefromfavorite", requireLogin, (req, res) => {
@@ -133,7 +134,7 @@ router.put("/removefromfavorite", requireLogin, (req, res) => {
     $pull: {
       favorites: req.user._id,
     },
-  }).then((result) => {
+  }).then(() => {
     return res.json({ message: "remove from favorites" });
   });
 });

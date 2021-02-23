@@ -4,150 +4,128 @@ import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
 import { useSelector, useDispatch } from "react-redux";
 const FollowPosts = () => {
-  const user = useSelector((state) => state.user);
-  const [data, setData] = useState([]);
-  const [favorite, setFavorite] = useState("");
+  const user = useSelector((state) => state.user.user);
+  const [favorite, setFavorite] = useState(false);
+  const [comment, setComment] = useState(false);
+  const [liked, setLiked] = useState(false);
   const dispatch = useDispatch();
-  const history = useHistory();
-  const followedPosts = useSelector(state=>state.followedPosts)
-  // useEffect(() => {
-  //   const auth = JSON.parse(localStorage.getItem("user"));
-  //   if (auth) {
-  //     dispatch({ type: "SETUSER", payload: auth });
-  //   } else {
-  //     if (!history.location.pathname.startsWith("/reset")) {
-  //       history.push("/login");
-  //     }
-  //   }
-  // }, []);
-
-  const likePost = (id) => {
-    fetch("/like", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((item) => {
-          if (item._id === result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
+  const followedPosts = useSelector((state) => state.post.followedPosts);
+  useEffect(() => {
+    axios
+      .get("/followeduserpost", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
       })
-      .catch((err) => console.log(err));
+      .then((res) => {
+        dispatch({ type: "FOLLOWED_POSTS", payload: res.data });
+      });
+  }, [liked, favorite, comment]);
+  const likePost = (id) => {
+    axios
+      .post(
+        "/like",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        setLiked(!liked);
+      });
   };
   const unlikePost = (id) => {
-    fetch("/unlike", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((item) => {
-          if (id === result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
+    axios
+      .post(
+        "/unlike",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+
+      .then(() => {
+        setLiked(!liked);
       });
   };
   const makeComment = (text, id) => {
-    fetch("/comment", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-        text,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.map((item) => {
-          if (item._id === result._id) {
-            return result;
-          } else {
-            return item;
-          }
-        });
-        setData(newData);
+    axios
+      .put(
+        "/comment",
+        {
+          postId: id,
+          text,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+       setComment(!comment)
       });
   };
-  const deletePost = (postId) => {
-    fetch(`/deletepost/${postId}`, {
-      method: "delete",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        const newData = data.filter((item) => {
-          return item._id !== result.result._id;
-        });
-        setData(newData);
-        M.toast({ html: result.message, classes: "#ff1744 red accent-3" });
-      });
-  };
+
   const addToFavorite = (id) => {
-    fetch("/addtofavorite", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        setFavorite(true);
-        M.toast({ html: result.message, classes: "#ff1744 green accent-3" });
+    axios
+      .put(
+        "/addtofavorite",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.message) {
+          setFavorite(!favorite);
+          M.toast({
+            html: res.data.message,
+            classes: "#ff1744 green accent-3",
+          });
+        }
       });
   };
   const removeFromFavorite = (id) => {
-    fetch("/removefromfavorite", {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-      body: JSON.stringify({
-        postId: id,
-      }),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        M.toast({ html: result.message, classes: "#ff1744 red accent-3" });
+    axios
+      .put(
+        "/removefromfavorite",
+        {
+          postId: id,
+        },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+
+      .then((res) => {
+        if (res.data.message) {
+          setFavorite(!favorite);
+          M.toast({ html: res.data.message, classes: "#ff1744 red accent-3" });
+        }
       });
   };
   return (
     <div className="container">
       {followedPosts
-        ? followedPosts.map((item) => {
+        ? followedPosts.map((item, index) => {
             return (
               <>
-                <div className="card home-card" key={item._id}>
+                <div className="card home-card" key={index}>
                   <h5 style={{ paddingTop: "10px", paddingBottom: "10px" }}>
                     <Link
                       to={
@@ -158,7 +136,7 @@ const FollowPosts = () => {
                     >
                       {item.postedBy.name}
                     </Link>
-                    {item.postedBy._id == user._id && (
+                    {/* {item.postedBy._id == user._id && (
                       <i
                         class="material-icons"
                         style={{ float: "right" }}
@@ -166,13 +144,19 @@ const FollowPosts = () => {
                       >
                         delete
                       </i>
-                    )}
+                    )} */}
                   </h5>
                   <div className="card-image">
                     <img style={{ height: "500px" }} src={item.photo} alt="" />
                   </div>
                   <div>
-                    <div style={{ display: "flex", paddingTop: "5px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        paddingTop: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
                       {item.likes.includes(user._id) ? (
                         <i
                           className="material-icons"
@@ -215,15 +199,17 @@ const FollowPosts = () => {
                     <h6>{item.likes.length} Likes</h6>
                     <h6>{item.title}</h6>
                     <p>{item.body}</p>
-                    {item.comments.map((record) => {
+                    {item.comments.map((record, index) => {
                       return (
-                        <h6 key={record._id}>
+                        <div key = {index}>
+                        <h6>
                           <span style={{ fontWeight: "500" }}>
                             {record.postedBy}
-                          </span>{" "}
+                          </span>
                           <span> </span>
                           {record.text}
                         </h6>
+                        </div>
                       );
                     })}
                     <form

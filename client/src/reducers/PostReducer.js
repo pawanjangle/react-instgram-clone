@@ -1,6 +1,7 @@
 const initialState = {
   followedPost: [],
   allPosts: [],
+  myPosts: []
 };
 const PostReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -12,6 +13,11 @@ const PostReducer = (state = initialState, action) => {
       return {
         ...state,
         followedPosts: action.payload.posts,
+      };
+    case "MY_POSTS":
+      return {
+        ...state,
+        myPosts: action.payload.myposts
       };
     default:
       return state;

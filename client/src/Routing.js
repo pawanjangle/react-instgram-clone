@@ -19,7 +19,7 @@ const Routing = () => {
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (token) {
-      const verified = jwt.verify(token, "adgjmp");
+      const verified = jwt.verify(token, process.env.REACT_APP_JwtSecret);
       if (verified) { 
       axios.get("/userdata", {
         headers: {
@@ -38,7 +38,18 @@ const Routing = () => {
           })
           .then((res) => {            
             dispatch({ type: "FOLLOWED_POSTS", payload: res.data });
-          })                      
+          }) ;
+          axios
+          .get("/allposts", {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("jwt"),
+            },
+          })
+          .then((res) => {
+            if (res.data.posts) {
+              dispatch({ type: "ALL_POSTS", payload: res.data });
+            }
+          });                    
       } else {
         history.push("/");
       }
