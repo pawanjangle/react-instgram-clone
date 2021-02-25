@@ -17,6 +17,9 @@ const Profile = () => {
       })
       .then((res) => {
         dispatch({ type: "MY_POSTS", payload: res.data });
+      })
+      .catch((res) => {
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   }, []);
   useEffect(() => {
@@ -30,31 +33,31 @@ const Profile = () => {
           },
         })
         .then((res) => {
-          console.log(res);
           if (res.data.message) {
             M.toast({
               html: res.data.message,
               classes: "#ff1744 green accent-3",
             });
             dispatch({ type: "SET_PROFILE_PIC", payload: res.data });
+          } else {
+            M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
           }
         });
     }
   }, [image]);
 
   return (
-    <div style={{ maxWidth: "550px", margin: "0px auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          margin: "18px 0px",
-          borderBottom: "1px solid grey",
-        }}
-      >
-        <div>
+    <div className="container py-3">
+      <div className="d-flex flex-wrap">
+        <div className="d-flex flex-column align-items-center col-md-4">
           <img
-            style={{ width: "160px", height: "160px", borderRadius: "80px"}}
+            style={{
+              width: "160px",
+              height: "160px",
+              borderRadius: "80px",
+              objectFit: "contain",
+              backgroundColor: "black",
+            }}
             src={user ? user.profilePic : "loading"}
           />
           <form>
@@ -72,36 +75,40 @@ const Profile = () => {
             </div>
           </form>
         </div>
-        <div>
+        <div className="col-md-8 d-flex flex-column justify-content-center align-items-center">
           <h4>{user ? user.name : "loading..."}</h4>
           <h6>{user ? user.email : "loading..."}</h6>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              width: "108%",
-            }}
-          >
-            <h6>{myPosts.length} posts</h6>
-            <h6>{user ? user.followers.length : 0} followers</h6>
-            <h6>{user ? user.following.length : 0} following</h6>
+          <div className="d-flex">
+            <h6 className="mx-3">{myPosts.length} posts</h6>
+            <h6 className="mx-3">
+              {user ? user.followers.length : 0} followers
+            </h6>
+            <h6 className="mx-3">
+              {user ? user.following.length : 0} following
+            </h6>
           </div>
         </div>
       </div>
-      <div className="gallery">
+      <hr />
+      <div className="gallery d-flex justify-content-between flex-wrap p-2">
         {myPosts
           ? myPosts.map((item, index) => {
               return (
-                <img key={index}
-                  style={{
-                    height: "200px",
-                    justifyContent: "space-between",
-                    width: "150px",
-                    padding: "10px",
-                  }}
-                  src={item.photo}
-                  alt="photo"
-                />
+                <div
+                  className=" card col-md-4 col-lg-3 text-center m-3 p-2"
+                  style={{ maxHeight: "300px" }}
+                >
+                  <img
+                    key={index}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                    src={item.photo}
+                    alt="photo"
+                  />
+                </div>
               );
             })
           : "loading"}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import M from "materialize-css";
 import axios from "axios";
@@ -13,19 +13,20 @@ const CreatePost = () => {
       form.append("title", title);
       form.append("body", body);
       form.append("pic", image);
-      console.log(form);
       axios
         .post("/createpost", form, {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("jwt"),
           },
         })
-        .then((data) => {
+        .then((res) => {
           M.toast({
-            html: data.data.message,
+            html: res.data.message,
             classes: "#ff1744 green accent-3",
           });
           history.push("/");
+        }).catch((res) => {
+          M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
         });
     }
   };
@@ -50,16 +51,21 @@ const CreatePost = () => {
         placeholder="Enter body"
         value={body}
         onChange={(e) => setBody(e.target.value)}
-      />
-      <div className="form-group">
-          <input
-            type="file"
-            className="form-control-file"           
-            onChange={(e) => {
-              setImage(e.target.files[0]);
-            }}
-          />
-        </div>
+      />   
+        <form>
+            <div className="file-field input-field">
+              <div className="btn">
+                <span>Choose File</span>
+                <input
+                  type="file"
+                  onChange={(e) => setImage(e.target.files[0])}
+                />
+              </div>
+              <div className="file-path-wrapper">
+                <input className="file-path validate" type="text" />
+              </div>
+            </div>
+          </form>
       <a
         className=" waves-effect waves-light btn 
 #1e88e5 blue darken-1 white-text"

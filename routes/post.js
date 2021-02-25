@@ -14,31 +14,39 @@ router.post("/createpost", requireLogin, uploadS3.single("pic"), (req, res) => {
     });
     newPost
       .save()
-      .then((data) => {
-        return res.json({ message: "post created", file: req.file });
+      .then((res) => {
+        return res.json({ message: "Post created", file: req.file });
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+      return res.json({error: "Failed to create Post"})
+    });
   }
 });
-router.get("/allposts", requireLogin, (req, res) => {
-  Post.find()
-    .populate("postedBy", "_id name")
-    .then((posts) => {
-      res.json({ posts });
-    });
+router.get("/allposts", async (req, res) => {
+ const posts= await Post.find()
+    .populate("postedBy", "_id name");
+  if(posts){
+      return res.status(200).json({ posts });
+  }
+  else{
+    return res.json({error: "Something went wrong" })
+  }
 });
-router.get("/followeduserpost", requireLogin, (req, res) => {
-  Post.find({ postedBy: { $in: req.user.following } })
-    .populate("postedBy", "_id name")
-    .then((posts) => {
-      res.json({ posts });
-    });
+router.get("/followeduserpost", requireLogin, async (req, res) => {
+ const posts = await Post.find({ postedBy: { $in: req.user.following } })
+    .populate("postedBy", "_id name");
+    if(posts) {
+      return res.status(200).json({ posts })
+      }
+      else{
+        return res.json({error: "Something went wrong" })
+      }
 });
 router.get("/myposts", requireLogin, (req, res) => {
   Post.find({ postedBy: req.user._id })
     .populate("postedBy", "_id name")
     .then((myposts) => {
-      res.json({ myposts });
+      res.status(200).json({ myposts });
     })
     .catch((error) => {
       res.json({ error: error });
@@ -57,7 +65,7 @@ router.post("/like", requireLogin, async (req, res) => {
       }
     ).exec((err, result) => {
       if (err) {
-        return res.json({ err });
+        return res.json({ error: err });
       } else {
         res.status(200).json(result);
       }
@@ -75,7 +83,7 @@ router.post("/unlike", requireLogin, (req, res) => {
     }
   ).exec((err, result) => {
     if (err) {
-      return res.json({ err });
+      return res.json({error: err });
     } else {
       res.status(200).json(result);
     }
@@ -96,14 +104,13 @@ router.put("/comment", requireLogin, (req, res) => {
     }
   ).exec((err, result) => {
     if (err) {
-      return res.json({ err });
+      return res.json({ error: err });
     } else {
       res.status(200).json(result);
     }
   });
 });
 router.delete("/deletepost/:postId", requireLogin, (req, res) => {
-  console.log(req.params.postId);
   Post.findOne({ _id: req.params.postId })
     .populate("postedBy", "_id")
     .exec((err, post) => {
@@ -116,7 +123,7 @@ router.delete("/deletepost/:postId", requireLogin, (req, res) => {
           return res.status(200).json({ message: "Post Deleted successfully" });
         })
         .catch((err) => {
-          console.log(err);
+          return res.json({ error: err });
         });
     });
 });
@@ -127,7 +134,10 @@ router.put("/addtofavorite", requireLogin, (req, res) => {
     },
   }).then(() => {
     return res.status(200).json({ message: "Added to favorites" });
-  });
+  })
+  .catch(()=>{
+    return res.json({error: "Failed to add to favorite"})
+  })
 });
 router.put("/removefromfavorite", requireLogin, (req, res) => {
   Post.findByIdAndUpdate(req.body.postId, {
@@ -135,7 +145,10 @@ router.put("/removefromfavorite", requireLogin, (req, res) => {
       favorites: req.user._id,
     },
   }).then(() => {
-    return res.json({ message: "remove from favorites" });
-  });
+    return res.status(200).json({ message: "remove from favorites" });
+  })
+  .catch(()=>{
+    return res.json({error: "Failed to remove from favorite"})
+  })
 });
 module.exports = router;

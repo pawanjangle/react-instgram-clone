@@ -96,10 +96,11 @@ router.post(
         },
         { new: true }
       ).then((updatedUser) => {
-
         return res
           .status(200)
           .json({ message: "Profile Pic ipdated successfully", updatedUser });
+      }).catch(() => {
+    return res.json({error: "Failed to set profile pic"})
       });
     }
   }
@@ -112,4 +113,5 @@ router.get("/userdata", requireLogin, async (req, res) => {
     return res.json({ error: "something went wrong" });
   }
 });
+
 module.exports = router;

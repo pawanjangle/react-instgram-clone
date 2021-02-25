@@ -1,7 +1,8 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import M from 'materialize-css';
 const Profile = () => {
   const dispatch = useDispatch();
   const userProfile = useSelector(state=>state.user.userProfile)
@@ -14,8 +15,7 @@ const Profile = () => {
         Authorization: "Bearer " + localStorage.getItem("jwt"),
       },
     })
-      .then((res) => {
-        console.log(res)
+      .then((res) => {      
         if(res.data.userProfile){
      dispatch({type:"GET_USER_PROFILE", payload: res.data})
       }});
@@ -25,10 +25,12 @@ const Profile = () => {
       headers: {      
         Authorization: "Bearer " + localStorage.getItem("jwt"),
       },    
-    }).then((res) => {
-      
+    }).then((res) => {    
       if(res.data.updatedUser){
       dispatch({type:"UPDATE_FOLLOW", payload: res.data})
+    }
+    else{
+      M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
     }
       })   
   };
@@ -39,7 +41,9 @@ const Profile = () => {
       },  
     }).then((res) => {
       dispatch({type:"UPDATE_UNFOLLOW", payload: res.data})
-      })
+      }).catch((res) => {
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
+      });
   };
   return (
     userProfile?

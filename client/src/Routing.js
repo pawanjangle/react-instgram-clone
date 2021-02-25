@@ -20,7 +20,7 @@ const Routing = () => {
     const token = localStorage.getItem("jwt");
     if (token) {
       const verified = jwt.verify(token, process.env.REACT_APP_JwtSecret);
-      if (verified) { 
+      if (verified) {
       axios.get("/userdata", {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("jwt"),
@@ -54,7 +54,9 @@ const Routing = () => {
         history.push("/");
       }
     } else {
-      history.push("/");
+      if(!history.location.pathname.startsWith("/reset")){
+        history.push("/");
+      }      
     }
   });
   return (

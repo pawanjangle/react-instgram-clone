@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link, useHistory } from "react-router-dom";
+import { Link} from "react-router-dom";
 import M from "materialize-css";
 import { useSelector, useDispatch } from "react-redux";
 const FollowPosts = () => {
@@ -18,8 +18,14 @@ const FollowPosts = () => {
         },
       })
       .then((res) => {
-        dispatch({ type: "FOLLOWED_POSTS", payload: res.data });
-      });
+        console.log(res)
+        if(res.data.posts){
+          dispatch({ type: "FOLLOWED_POSTS", payload: res.data });
+        }        
+      else{
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" })
+      }
+    });
   }, [liked, favorite, comment]);
   const likePost = (id) => {
     axios
@@ -36,6 +42,8 @@ const FollowPosts = () => {
       )
       .then((res) => {
         setLiked(!liked);
+      }).catch((res) => {
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
   const unlikePost = (id) => {
@@ -54,6 +62,8 @@ const FollowPosts = () => {
 
       .then(() => {
         setLiked(!liked);
+      }) .catch((res) => {
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
   const makeComment = (text, id) => {
@@ -71,7 +81,9 @@ const FollowPosts = () => {
         }
       )
       .then((res) => {
-       setComment(!comment)
+        setComment(!comment);
+      }) .catch((res) => {
+        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
 
@@ -96,7 +108,10 @@ const FollowPosts = () => {
             classes: "#ff1744 green accent-3",
           });
         }
-      });
+        else{
+          M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
+        }
+      })
   };
   const removeFromFavorite = (id) => {
     axios
@@ -111,43 +126,36 @@ const FollowPosts = () => {
           },
         }
       )
-
       .then((res) => {
         if (res.data.message) {
           setFavorite(!favorite);
           M.toast({ html: res.data.message, classes: "#ff1744 red accent-3" });
         }
+        else{
+          M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
+        }
       });
   };
   return (
-    <div className="container">
+    <div className=" d-flex flex-column justify-content-center align-items-center flex-wrap">
       {followedPosts
         ? followedPosts.map((item, index) => {
             return (
               <>
-                <div className="card home-card" key={index}>
-                  <h5 style={{ paddingTop: "10px", paddingBottom: "10px" }}>
-                    <Link
-                      to={
-                        item.postedBy._id !== user._id
-                          ? `/profile/${item.postedBy._id}`
-                          : "/profile"
-                      }
-                    >
-                      {item.postedBy.name}
-                    </Link>
-                    {/* {item.postedBy._id == user._id && (
-                      <i
-                        class="material-icons"
-                        style={{ float: "right" }}
-                        onClick={() => deletePost(item._id)}
-                      >
-                        delete
-                      </i>
-                    )} */}
-                  </h5>
-                  <div className="card-image">
-                    <img style={{ height: "500px" }} src={item.photo} alt="" />
+                <div className="card col-md-5 p-3" key={index}>
+                  <div className="" >
+                    <h5 style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+                      <Link to={`/profile/${item.postedBy._id}`}>
+                        {item.postedBy.name}
+                      </Link>
+                    </h5>
+                  </div>
+                  <div className="card-image mb-3">
+                    <img
+                      style={{ height: "500px", objectFit: "contain" }}
+                      src={item.photo}
+                      alt=""
+                    />
                   </div>
                   <div>
                     <div
@@ -201,14 +209,14 @@ const FollowPosts = () => {
                     <p>{item.body}</p>
                     {item.comments.map((record, index) => {
                       return (
-                        <div key = {index}>
-                        <h6>
-                          <span style={{ fontWeight: "500" }}>
-                            {record.postedBy}
-                          </span>
-                          <span> </span>
-                          {record.text}
-                        </h6>
+                        <div key={index}>
+                          <h6>
+                            <span style={{ fontWeight: "500" }}>
+                              {record.postedBy}
+                            </span>
+                            <span> </span>
+                            {record.text}
+                          </h6>
                         </div>
                       );
                     })}
@@ -228,5 +236,5 @@ const FollowPosts = () => {
         : "loading"}
     </div>
   );
-};
+}
 export default FollowPosts;
