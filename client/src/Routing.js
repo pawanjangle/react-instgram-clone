@@ -11,7 +11,7 @@ import UserProfile from "./components/screens/UserProfile";
 import Reset from "./components/screens/reset";
 import NewPassword from "./components/screens/newPassword";
 import { useHistory } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 const Routing = () => {
   const dispatch = useDispatch();
@@ -59,15 +59,30 @@ const Routing = () => {
       }      
     }
   });
+  const SecuredRoute = (props) => { 
+    const auth = useSelector((state) => state.user.authenticated);
+    return (
+      <Route
+        path={props.path}
+        render={(data) =>
+          auth ? (
+            <props.component {...data}></props.component>
+          ) : (
+            null          
+          )
+        }
+      />
+    );
+  };
   return (
     <Switch>
       <Route exact path="/" component={Home} />
       <Route path="/signup" component={Signup} />
       <Route exact path="/followposts" component={FollowPosts} />
       <Route path="/login" component={Login} />
-      <Route exact path="/profile" component={Profile} />
-      <Route path="/create" component={CreatePost} />
-      <Route path="/profile/:userid" component={UserProfile} />
+      <SecuredRoute exact path="/profile" component={Profile} />
+      <SecuredRoute path="/create" component={CreatePost} />
+      <SecuredRoute path="/profile/:userid" component={UserProfile} />
       <Route exact path="/reset" component={Reset} />
       <Route path="/reset/:token" component={NewPassword} />
     </Switch>

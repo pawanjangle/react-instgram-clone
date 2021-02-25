@@ -190,13 +190,13 @@ const Home = () => {
                   </div>
                   <div className="mx-3">
                     <div className="d-flex">
-                      <div className="pr-3 ">
+                      <div className="">
                         {user ? (
                           item.likes.includes(user._id) ? (
                             <i
                               className="material-icons"
                               style={{
-                                color: "blue",
+                                color: "#2196f3",
                                 cursor: "pointer",
                               }}
                               onClick={() => {
@@ -208,7 +208,8 @@ const Home = () => {
                           ) : (
                             <i
                               className="material-icons"
-                              style={{ cursor: "pointer" }}
+                              style={{ cursor: "pointer", color: "#2196f3" }}
+                      
                               onClick={() => likePost(item._id)}
                             >
                               thumb_up
@@ -216,6 +217,7 @@ const Home = () => {
                           )
                         ) : null}
                       </div>
+                      <div className="mx-3">
                       {user ? (
                         item.favorites.includes(user._id) ? (
                           <i
@@ -244,6 +246,7 @@ const Home = () => {
                           </i>
                         )
                       ) : null}
+                      </div>
                     </div>
                     <h6>{item.likes.length} Likes</h6>
                     <h6> {item.title} </h6> <p> {item.body} </p>

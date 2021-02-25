@@ -31,6 +31,7 @@ const CreatePost = () => {
     }
   };
   return (
+    <div className="container-fluid">
     <div
       className="card"
       style={{
@@ -58,6 +59,7 @@ const CreatePost = () => {
                 <span>Choose File</span>
                 <input
                   type="file"
+                  name="pic"
                   onChange={(e) => setImage(e.target.files[0])}
                 />
               </div>
@@ -75,6 +77,7 @@ const CreatePost = () => {
       >
         Submit Post
       </a>
+      </div>
     </div>
   );
 };

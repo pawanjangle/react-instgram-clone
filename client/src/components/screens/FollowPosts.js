@@ -158,17 +158,12 @@ const FollowPosts = () => {
                     />
                   </div>
                   <div>
-                    <div
-                      style={{
-                        display: "flex",
-                        paddingTop: "5px",
-                        cursor: "pointer",
-                      }}
-                    >
+                  <div className="d-flex">
+                    <div>                
                       {item.likes.includes(user._id) ? (
                         <i
                           className="material-icons"
-                          style={{ color: "blue" }}
+                          style={{ color: "#2196f3", cursor: "pointer", }}
                           onClick={() => {
                             unlikePost(item._id);
                           }}
@@ -178,17 +173,18 @@ const FollowPosts = () => {
                       ) : (
                         <i
                           className="material-icons"
+                          style={{ color: "#2196f3", cursor: "pointer", }}
                           onClick={() => likePost(item._id)}
                         >
                           thumb_up
                         </i>
-                      )}
-
-                      <div style={{ paddingLeft: "10px" }}>
+                      )}    
+                      </div> 
+                      <div className="mx-3">                          
                         {item.favorites.includes(user._id) ? (
                           <i
                             className="material-icons"
-                            style={{ color: "red" }}
+                            style={{ color: "red", cursor: "pointer", }}
                             onClick={() => removeFromFavorite(item._id)}
                           >
                             favorite
@@ -196,12 +192,14 @@ const FollowPosts = () => {
                         ) : (
                           <i
                             className="material-icons"
+                            style={{  cursor: "pointer", }}
                             onClick={() => addToFavorite(item._id)}
                           >
                             favorite
                           </i>
                         )}
-                      </div>
+                        </div>  
+                     </div>
                     </div>
 
                     <h6>{item.likes.length} Likes</h6>
@@ -228,8 +226,7 @@ const FollowPosts = () => {
                     >
                       <input type="text" placeholder="add a comment" />
                     </form>
-                  </div>
-                </div>
+                  </div>              
               </>
             );
           })

@@ -2,82 +2,90 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import M from 'materialize-css';
+import M from "materialize-css";
 const Profile = () => {
   const dispatch = useDispatch();
-  const userProfile = useSelector(state=>state.user.userProfile)
-  const userPosts = useSelector(state=>state.user.userPosts)
-  const user = useSelector(state=>state.user.user)
+  const userProfile = useSelector((state) => state.user.userProfile);
+  const userPosts = useSelector((state) => state.user.userPosts);
+  const user = useSelector((state) => state.user.user);
   const { userid } = useParams();
   useEffect(() => {
-    axios.get(`/user/${userid}`, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },
-    })
-      .then((res) => {      
-        if(res.data.userProfile){
-     dispatch({type:"GET_USER_PROFILE", payload: res.data})
-      }});
+    axios
+      .get(`/user/${userid}`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("jwt"),
+        },
+      })
+      .then((res) => {
+        if (res.data.userProfile) {
+          dispatch({ type: "GET_USER_PROFILE", payload: res.data });
+        }
+      });
   }, []);
   const followUser = () => {
-    axios.put("/follow", { followId: userid }, {   
-      headers: {      
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },    
-    }).then((res) => {    
-      if(res.data.updatedUser){
-      dispatch({type:"UPDATE_FOLLOW", payload: res.data})
-    }
-    else{
-      M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
-    }
-      })   
+    axios
+      .put(
+        "/follow",
+        { followId: userid },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        if (res.data.updatedUser) {
+          dispatch({ type: "UPDATE_FOLLOW", payload: res.data });
+        } else {
+          M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
+        }
+      });
   };
   const unfollowUser = () => {
-    axios.put("/unfollow", { unfollowId: userid }, {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("jwt"),
-      },  
-    }).then((res) => {
-      dispatch({type:"UPDATE_UNFOLLOW", payload: res.data})
-      }).catch((res) => {
+    axios
+      .put(
+        "/unfollow",
+        { unfollowId: userid },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      )
+      .then((res) => {
+        dispatch({ type: "UPDATE_UNFOLLOW", payload: res.data });
+      })
+      .catch((res) => {
         M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
-  return (
-    userProfile?
-    <div style={{ maxWidth: "550px", margin: "0px auto" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          margin: "18px 0px",
-          borderBottom: "1px solid grey",
-        }}
-      >
-        <div>
+  return userProfile ? (
+    <div className="container py-3">
+      <div className="d-flex justify-content-center flex-wrap">
+        <div className="d-flex flex-column align-items-center col-md-4">
           <img
-            style={{ width: "160px", height: "160px", borderRadius: "80px" }}
-            src={ userProfile.profilePic}
+            style={{
+              width: "160px",
+              height: "160px",
+              borderRadius: "80px",
+              objectFit: "contain",
+              backgroundColor: "black",
+            }}
+            src={userProfile.profilePic}
           />
         </div>
-        <div>
+        <div className="col-md-8 d-flex flex-column justify-content-center align-items-center">
           <h4>{userProfile.name}</h4>
           <h4>{userProfile.email}</h4>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              width: "108%",
-            }}
-          >
-            <h6>{userPosts ? userPosts.length : 0} posts</h6>
-            <h6>
-              {userProfile.followers ? userProfile.followers.length : 0} followers
+          <div className="d-flex pb-3">
+            <h6 className="mx-3">{userPosts ? userPosts.length : 0} posts</h6>
+            <h6 className="mx-3">
+              {userProfile.followers ? userProfile.followers.length : 0}{" "}
+              followers
             </h6>
-            <h6>
-              {userProfile.following ? userProfile.following.length : 0} following
+            <h6 className="mx-3">
+              {userProfile.following ? userProfile.following.length : 0}{" "}
+              following
             </h6>
           </div>
           {userProfile.followers.includes(user._id) ? (
@@ -97,22 +105,33 @@ const Profile = () => {
           )}
         </div>
       </div>
-      <div className="gallery">
-        {userPosts ? userPosts.map((item) => {
-          return (
-            <img
-              style={{
-                height: "30%",
-                justifyContent: "space-between",
-                width: "30%",
-              }}
-              src={item.photo}
-              alt="photo"
-            />
-          );
-        }): "loading"}
+      <hr />
+      <div className="d-flex justify-content-between flex-wrap p-2">
+        {userPosts
+          ? userPosts.map((item, index) => {
+              return (
+                <div
+                  className=" card col-md-4 col-lg-3 text-center m-3 p-2"
+                  style={{ maxHeight: "300px" }}
+                >
+                  <img
+                    src={item.photo}
+                    alt="photo"
+                    key={index}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </div>
+              );
+            })
+          : "loading"}
       </div>
-    </div>: "loading"
-  ) 
+    </div>
+  ) : (
+    "loading"
+  );
 };
 export default Profile;

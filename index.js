@@ -22,11 +22,11 @@ console.log( "mongodb connection successful" )
 app.use( express.json(  ) );
 app.use(cors());
 app.use( bodyParser.urlencoded( {extended: false} ) );
-app.use(express.static( path.join( __dirname, "build" ) ) )
+app.use(express.static( path.join( __dirname, "./client/build" ) ) )
 app.use( "/", auth);
 app.use( "/", post );
 app.use( "/", user);
-app.get( "/", ( req, res )=>{res.sendFile(path.join( __dirname, "build/index.html" ));});
+app.get( "/", ( req, res )=>{res.sendFile(path.join( __dirname, "./client/build/index.html" ));});
 const server = http.createServer( app );
 const PORT = process.env.PORT || 5000;
 app.listen( PORT, ( err ) =>{if ( err ){

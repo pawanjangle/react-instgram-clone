@@ -7,7 +7,7 @@ const Profile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const myPosts = useSelector((state) => state.post.myPosts);
-  console.log(myPosts);
+
   useEffect(() => {
     axios
       .get("/myposts", {
@@ -16,11 +16,10 @@ const Profile = () => {
         },
       })
       .then((res) => {
+        if(res.data.myPosts){
         dispatch({ type: "MY_POSTS", payload: res.data });
-      })
-      .catch((res) => {
-        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
-      });
+      }     
+    });
   }, []);
   useEffect(() => {
     if (image) {
@@ -90,7 +89,7 @@ const Profile = () => {
         </div>
       </div>
       <hr />
-      <div className="gallery d-flex justify-content-between flex-wrap p-2">
+      <div className="d-flex justify-content-between flex-wrap p-2">
         {myPosts
           ? myPosts.map((item, index) => {
               return (
