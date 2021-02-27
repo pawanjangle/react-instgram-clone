@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import M from "materialize-css";
 const Profile = () => {
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ const Profile = () => {
   return userProfile ? (
     <div className="container py-3">
       <div className="d-flex justify-content-center flex-wrap">
-        <div className="d-flex flex-column align-items-center col-md-4">
+        <div className="d-flex flex-column align-items-center col-md-4 flex-wrap">
           <img
             style={{
               width: "160px",
@@ -74,20 +74,22 @@ const Profile = () => {
             src={userProfile.profilePic}
           />
         </div>
-        <div className="col-md-8 d-flex flex-column justify-content-center align-items-center">
+        <div className="col-md-8 d-flex flex-column justify-content-center align-items-center flex-wrap">
           <h4>{userProfile.name}</h4>
-          <h4>{userProfile.email}</h4>
+          <h5>{userProfile.email}</h5>
           <div className="d-flex pb-3">
             <h6 className="mx-3">{userPosts ? userPosts.length : 0} posts</h6>
-            <h6 className="mx-3">
+          <Link to ={`/followers/${userid}`}>  <h6 className="mx-3">
               {userProfile.followers ? userProfile.followers.length : 0}{" "}
               followers
-            </h6>
-            <h6 className="mx-3">
+            </h6></Link>
+            <Link to ={`/following/${userid}`}> <h6 className="mx-3">
               {userProfile.following ? userProfile.following.length : 0}{" "}
               following
-            </h6>
+            </h6></Link>
           </div>
+          {userProfile._id !== user._id ? 
+           <div>
           {userProfile.followers.includes(user._id) ? (
             <button
               className="waves-effect waves-light btn 64b5f6 blue lighten-2 white-text"
@@ -103,6 +105,8 @@ const Profile = () => {
               follow
             </button>
           )}
+          </div>: null
+}
         </div>
       </div>
       <hr />

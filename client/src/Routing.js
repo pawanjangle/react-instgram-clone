@@ -7,6 +7,8 @@ import Login from "./components/screens/login";
 import Profile from "./components/screens/profile";
 import CreatePost from "./components/screens/createPost";
 import FollowPosts from "./components/screens/FollowPosts";
+import Followers from "./components/screens/Followers";
+import Following from "./components/screens/Following";
 import UserProfile from "./components/screens/UserProfile";
 import Reset from "./components/screens/reset";
 import NewPassword from "./components/screens/newPassword";
@@ -26,7 +28,7 @@ const Routing = () => {
           Authorization: "Bearer " + localStorage.getItem("jwt"),
         },
       } ).then(res=>{
-        console.log(res)
+       
         dispatch({type: "SET_USER", payload: res.data})
       });
         history.push("/followposts");
@@ -85,6 +87,8 @@ const Routing = () => {
       <SecuredRoute path="/profile/:userid" component={UserProfile} />
       <Route exact path="/reset" component={Reset} />
       <Route path="/reset/:token" component={NewPassword} />
+      <Route path="/followers/:userid" component={Followers} />
+      <Route path="/following/:userid" component={Following} />
     </Switch>
   );
 };

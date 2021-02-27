@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import M from "materialize-css";
 import { useSelector, useDispatch } from "react-redux";
 const FollowPosts = () => {
@@ -18,14 +18,12 @@ const FollowPosts = () => {
         },
       })
       .then((res) => {
-        console.log(res)
-        if(res.data.posts){
+        if (res.data.posts) {
           dispatch({ type: "FOLLOWED_POSTS", payload: res.data });
-        }        
-      else{
-        M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" })
-      }
-    });
+        } else {
+          M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
+        }
+      });
   }, [liked, favorite, comment]);
   const likePost = (id) => {
     axios
@@ -42,7 +40,8 @@ const FollowPosts = () => {
       )
       .then((res) => {
         setLiked(!liked);
-      }).catch((res) => {
+      })
+      .catch((res) => {
         M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
@@ -62,7 +61,8 @@ const FollowPosts = () => {
 
       .then(() => {
         setLiked(!liked);
-      }) .catch((res) => {
+      })
+      .catch((res) => {
         M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
@@ -82,7 +82,8 @@ const FollowPosts = () => {
       )
       .then((res) => {
         setComment(!comment);
-      }) .catch((res) => {
+      })
+      .catch((res) => {
         M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
       });
   };
@@ -107,11 +108,10 @@ const FollowPosts = () => {
             html: res.data.message,
             classes: "#ff1744 green accent-3",
           });
-        }
-        else{
+        } else {
           M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
         }
-      })
+      });
   };
   const removeFromFavorite = (id) => {
     axios
@@ -130,8 +130,7 @@ const FollowPosts = () => {
         if (res.data.message) {
           setFavorite(!favorite);
           M.toast({ html: res.data.message, classes: "#ff1744 red accent-3" });
-        }
-        else{
+        } else {
           M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
         }
       });
@@ -143,9 +142,9 @@ const FollowPosts = () => {
             return (
               <>
                 <div className="card col-md-5 p-3" key={index}>
-                  <div className="" >
+                  <div className="">
                     <h5 style={{ paddingTop: "10px", paddingBottom: "10px" }}>
-                      <Link to={`/profile/${item.postedBy._id}`}>
+                      <Link to={`/profile/${item.postedBy._id}` } >
                         {item.postedBy.name}
                       </Link>
                     </h5>
@@ -158,33 +157,33 @@ const FollowPosts = () => {
                     />
                   </div>
                   <div>
-                  <div className="d-flex">
-                    <div>                
-                      {item.likes.includes(user._id) ? (
-                        <i
-                          className="material-icons"
-                          style={{ color: "#2196f3", cursor: "pointer", }}
-                          onClick={() => {
-                            unlikePost(item._id);
-                          }}
-                        >
-                          thumb_down
-                        </i>
-                      ) : (
-                        <i
-                          className="material-icons"
-                          style={{ color: "#2196f3", cursor: "pointer", }}
-                          onClick={() => likePost(item._id)}
-                        >
-                          thumb_up
-                        </i>
-                      )}    
-                      </div> 
-                      <div className="mx-3">                          
-                        {item.favorites.includes(user._id) ? (
+                    <div className="d-flex">
+                      <div>
+                        {user && item.likes.includes(user._id) ? (
                           <i
                             className="material-icons"
-                            style={{ color: "red", cursor: "pointer", }}
+                            style={{ color: "#2196f3", cursor: "pointer" }}
+                            onClick={() => {
+                              unlikePost(item._id);
+                            }}
+                          >
+                            thumb_down
+                          </i>
+                        ) : (
+                          <i
+                            className="material-icons"
+                            style={{ color: "#2196f3", cursor: "pointer" }}
+                            onClick={() => likePost(item._id)}
+                          >
+                            thumb_up
+                          </i>
+                        )}
+                      </div>
+                      <div className="mx-3">
+                        {user && item.favorites.includes(user._id) ? (
+                          <i
+                            className="material-icons"
+                            style={{ color: "red", cursor: "pointer" }}
                             onClick={() => removeFromFavorite(item._id)}
                           >
                             favorite
@@ -192,46 +191,46 @@ const FollowPosts = () => {
                         ) : (
                           <i
                             className="material-icons"
-                            style={{  cursor: "pointer", }}
+                            style={{ cursor: "pointer" }}
                             onClick={() => addToFavorite(item._id)}
                           >
                             favorite
                           </i>
                         )}
-                        </div>  
-                     </div>
+                      </div>
                     </div>
+                  </div>
 
-                    <h6>{item.likes.length} Likes</h6>
-                    <h6>{item.title}</h6>
-                    <p>{item.body}</p>
-                    {item.comments.map((record, index) => {
-                      return (
-                        <div key={index}>
-                          <h6>
-                            <span style={{ fontWeight: "500" }}>
-                              {record.postedBy}
-                            </span>
-                            <span> </span>
-                            {record.text}
-                          </h6>
-                        </div>
-                      );
-                    })}
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        makeComment(e.target[0].value, item._id);
-                      }}
-                    >
-                      <input type="text" placeholder="add a comment" />
-                    </form>
-                  </div>              
+                  <h6>{item.likes.length} Likes</h6>
+                  <h6>{item.title}</h6>
+                  <p>{item.body}</p>
+                  {item.comments.map((record, index) => {
+                    return (
+                      <div key={index}>
+                        <h6>
+                          <span style={{ fontWeight: "500" }}>
+                            {record.postedBy}
+                          </span>
+                          <span> </span>
+                          {record.text}
+                        </h6>
+                      </div>
+                    );
+                  })}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      makeComment(e.target[0].value, item._id);
+                    }}
+                  >
+                    <input type="text" placeholder="add a comment" />
+                  </form>
+                </div>
               </>
             );
           })
         : "loading"}
     </div>
   );
-}
+};
 export default FollowPosts;

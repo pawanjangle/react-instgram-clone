@@ -5,6 +5,9 @@ const requireLogin = require("../middleware/requireLogin");
 const { uploadS3 } = require("../middleware/uploadS3");
 router.post("/createpost", requireLogin, uploadS3.single("pic"), (req, res) => {
   const { title, body } = req.body;
+  if(!title || !body){
+    return res.json({error: "Please add all credentials"})
+  }
   if (req.file) {
     const newPost = new Post({
       title,

@@ -7,9 +7,8 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routing />
+      <Routing />    
     </BrowserRouter>
   );
 }
-
 export default App;

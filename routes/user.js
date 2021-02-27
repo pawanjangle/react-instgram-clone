@@ -20,7 +20,20 @@ router.get("/user/:id", requireLogin, (req, res) => {
         });
     })
     .catch((err) => {
-      return res.status(400).json({ error: err });
+      return res.json({ error: err });
+    });
+});
+router.get("/userfollowdata/:id", requireLogin, async (req, res) => {
+  const userdata = await User.findOne({ _id: req.params.id })
+    .populate("followers", "name profilePic")
+    .populate("following", "name profilePic")
+    .select("-password")
+    .then((userdata) => {
+      if (userdata) {
+        return res.status(200).json({ userdata });
+      } else {
+        return res.json({ error: err });
+      }
     });
 });
 router.put("/follow", requireLogin, (req, res) => {
@@ -45,7 +58,7 @@ router.put("/follow", requireLogin, (req, res) => {
       )
         .select("-password")
         .then((updatedUser) => {
-          return res.status(200).json({updatedUser});
+          return res.status(200).json({ updatedUser });
         })
         .catch((err) => {
           return res.json({ error: err });
@@ -75,10 +88,10 @@ router.put("/unfollow", requireLogin, (req, res) => {
       )
         .select("-password")
         .then((updatedUser) => {
-          return res.json({updatedUser});
+          return res.json({ updatedUser });
         })
         .catch((err) => {
-          return res.json({ error: err });
+          return res.json({ error: err })
         });
     }
   );
@@ -95,13 +108,15 @@ router.post(
           profilePic: req.file.location,
         },
         { new: true }
-      ).then((updatedUser) => {
-        return res
-          .status(200)
-          .json({ message: "Profile Pic ipdated successfully", updatedUser });
-      }).catch(() => {
-    return res.json({error: "Failed to set profile pic"})
-      });
+      )
+        .then((updatedUser) => {
+          return res
+            .status(200)
+            .json({ message: "Profile Pic ipdated successfully", updatedUser });
+        })
+        .catch(() => {
+          return res.json({ error: "Failed to set profile pic" });
+        });
     }
   }
 );
