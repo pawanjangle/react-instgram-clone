@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import M from "materialize-css";
 const Profile = () => {
   const [image, setImage] = useState("");
+  const [profilePic, setProfilePic] = useState(false);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const myPosts = useSelector((state) => state.post.myPosts);
-
+  useEffect(()=>{
+    axios
+    .get("/userdata", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("jwt"),
+      },
+    })
+    .then((res) => {
+      dispatch({ type: "SET_USER", payload: res.data });
+    });
+  }, [profilePic])
   useEffect(() => {
     axios
       .get("/myposts", {
@@ -16,10 +28,10 @@ const Profile = () => {
         },
       })
       .then((res) => {
-        if(res.data.myPosts){
-        dispatch({ type: "MY_POSTS", payload: res.data });
-      }     
-    });
+        if (res.data.myPosts) {
+          dispatch({ type: "MY_POSTS", payload: res.data });
+        }
+      });
   }, []);
   useEffect(() => {
     if (image) {
@@ -33,6 +45,7 @@ const Profile = () => {
         })
         .then((res) => {
           if (res.data.message) {
+            setProfilePic(!profilePic);
             M.toast({
               html: res.data.message,
               classes: "#ff1744 green accent-3",
@@ -41,7 +54,7 @@ const Profile = () => {
           } else {
             M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
           }
-        });
+        })       
     }
   }, [image]);
 
@@ -79,12 +92,17 @@ const Profile = () => {
           <h6>{user ? user.email : "loading..."}</h6>
           <div className="d-flex">
             <h6 className="mx-3">{myPosts.length} posts</h6>
-            <h6 className="mx-3">
-              {user ? user.followers.length : 0} followers
-            </h6>
-            <h6 className="mx-3">
-              {user ? user.following.length : 0} following
-            </h6>
+
+            <Link to={`/followers/${user._id}`}>
+              <h6 className="mx-3">
+                {user ? user.followers.length : 0} followers
+              </h6>
+            </Link>
+            <Link to={`/following/${user._id}`}>
+              <h6 className="mx-3">
+                {user ? user.following.length : 0} following
+              </h6>
+            </Link>
           </div>
         </div>
       </div>

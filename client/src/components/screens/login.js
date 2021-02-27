@@ -3,6 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import M from "materialize-css";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import Dummy from ".//dummy";
 const Login = () => {
   const history = useHistory();
   const [email, setEmail] = useState("");
@@ -41,41 +42,44 @@ const Login = () => {
           });
       } else {
         M.toast({ html: res.data.error, classes: "#ff1744 red accent-3" });
-        history.push("/");
+        history.push("/login");
       }
     });
   };
   return (
-    <div className="d-flex flex-column align-items-center flex-wrap">
-      <div className="card col-md-6 p-5">
-        <h2 className="brand-logo text-center">Instagram</h2>
-        <input
-          type="text"
-          placeholder="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+    <div>
+      <Dummy/>
+      <div className="d-flex flex-column align-items-center flex-wrap">
+        <div className="card col-md-6 p-5">
+          <h2 className="brand-logo text-center">Instagram</h2>
+          <input
+            type="text"
+            placeholder="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <div className="text-center my-3">
-          <button
-            className="waves-effect waves-light btn 64b5f6 blue lighten-2 white-text "
-            onClick={() => logindata()}
-          >
-            Login
-          </button>
+          <div className="text-center my-3">
+            <button
+              className="waves-effect waves-light btn 64b5f6 blue lighten-2 white-text "
+              onClick={() => logindata()}
+            >
+              Login
+            </button>
+          </div>
+          <h6 className="text-center my-2">
+            <Link to="/reset">Forgot Password ?</Link>
+          </h6>
+          <h5 className="text-center my-2">
+            <Link to="/signup">Don't have an Account ?</Link>
+          </h5>
         </div>
-        <h6 className="text-center my-2">
-          <Link to="/reset">Forgot Password ?</Link>
-        </h6>
-        <h5 className="text-center my-2">
-          <Link to="/signup">Don't have an Account ?</Link>
-        </h5>
       </div>
     </div>
   );
